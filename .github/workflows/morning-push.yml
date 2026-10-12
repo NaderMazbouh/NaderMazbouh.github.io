@@ -1,0 +1,39 @@
+# Morning notification: one push to every phone that turned it on, right after the day's brief
+# is published to data/briefings.json. Needs the repository secret FIREBASE_SERVICE_ACCOUNT.
+name: Morning notification
+
+on:
+  push:
+    branches: [main]
+    paths: [data/briefings.json]
+  schedule:
+    - cron: "30 7 * * *"   # backup run (10:30 Beirut in summer, 9:30 in winter); sends only if today's brief wasn't sent yet
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "test = send the newest brief now to everyone who turned notifications on"
+        type: choice
+        options: [test, brief]
+        default: test
+
+permissions:
+  contents: read
+
+concurrency:
+  group: morning-notification
+  cancel-in-progress: false
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install --quiet google-auth requests
+      - run: python tools/send_push.py
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || 'brief' }}
