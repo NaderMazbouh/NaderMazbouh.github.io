@@ -38,6 +38,13 @@
   /* offline support */
   if ("serviceWorker" in navigator) addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
 
+  /* back after 30+ minutes (e.g. the app left open since yesterday): reload for today's brief and the newest version */
+  let hiddenAt = 0;
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) { hiddenAt = Date.now(); return; }
+    if (hiddenAt && Date.now() - hiddenAt > 30 * 60 * 1000 && navigator.onLine !== false) location.reload();
+  });
+
   /* "Install app" button when the browser allows it */
   let deferred = null;
   addEventListener("beforeinstallprompt", e => {
