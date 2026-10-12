@@ -578,6 +578,19 @@ html[lang="ar"] .aapanel h2{font-family:var(--f-display)}
 /* motion off: phone setting or in-app switch */
 html.rb-still .tick-in{animation:none}
 @media (prefers-reduced-motion:reduce){.tick-in{animation:none}}
+
+/* morning notification card (website) */
+.pushcard{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px 12px;align-items:start;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px 16px}
+.pushcard .pc-t{display:grid;gap:2px}.pushcard .pc-t span{font-size:13.5px;color:var(--muted)}
+.pushcard .pc-b{grid-column:2;display:flex;gap:8px;flex-wrap:wrap}
+.pushcard .pc-b button{border-radius:999px;padding:7px 14px;font-size:13.5px}
+.pushcard .pc-b button:not(.ghost){background:#0E3A53;border-color:#0E3A53;color:#fff}
+
+/* opened from the notification's Listen button: point at Listen */
+@keyframes rbPulse{0%{box-shadow:0 0 0 0 rgba(242,165,65,.75)}100%{box-shadow:0 0 0 16px rgba(242,165,65,0)}}
+.rb-pulse{animation:rbPulse 1.1s ease-out 3}
+html.rb-still .rb-pulse{animation:none;outline:3px solid #F2A541;outline-offset:2px}
+@media (prefers-reduced-motion:reduce){.rb-pulse{animation:none;outline:3px solid #F2A541;outline-offset:2px}}
 </style>
 
 <div class="wrap">
@@ -1148,6 +1161,7 @@ const ALERT_AT = 75;
       <fieldset><legend>${esc(tx.spacing)}</legend><div class="opts">${opt("spacing","compact",tx.compact)}${opt("spacing","relaxed",tx.relaxed)}</div></fieldset>
       <fieldset><legend>${esc(tx.look)}</legend><div class="opts">${opt("look","light",tx.light)}${opt("look","night",tx.night)}${opt("look","auto",tx.auto)}</div><p class="note">${esc(tx.autoNote)}</p></fieldset>
       <fieldset><legend>${esc(tx.motion)}</legend><div class="opts">${opt("motion","on",tx.on)}${opt("motion","off",tx.off)}</div><p class="note">${esc(tx.motionNote)}</p></fieldset>
+      ${pushRow()}
       <p class="note">${esc(tx.saved)}</p>`;
   }
   function aaOpen(on){
@@ -1182,7 +1196,114 @@ const ALERT_AT = 75;
     else { const el=$(k==="prices"?"#secDay":"#secEvents"); if(el) el.scrollIntoView({behavior:beh, block:"start"}); }
     tabbarRender();
   }
-  function rdAfter(){ artsWire(); tabbarRender(); aaRender(); const ab=$("#aaBtn"); if(ab){ ab.setAttribute("aria-label", RT().aa); ab.title=RT().aa; } }
+  function rdAfter(){ artsWire(); tabbarRender(); aaRender(); pushSync(); openFromLink(); const ab=$("#aaBtn"); if(ab){ ab.setAttribute("aria-label", RT().aa); ab.title=RT().aa; } }
+
+  /* morning notification (website only): one push each morning after the brief is published */
+  const FB = {apiKey:"AIzaSyAbMQhelPmOcPkkDToPDKtgDObOjwkl0nw", authDomain:"ripple-brief-dc986.firebaseapp.com", projectId:"ripple-brief-dc986", storageBucket:"ripple-brief-dc986.firebasestorage.app", messagingSenderId:"170751347733", appId:"1:170751347733:web:71265f68eff8a5fa4c921c"};
+  const VAPID = "BJhlntjoPpYrie3VN2nbgWs4DNc-1WmEnuoloNpSxzOwHpkGYK3lVsahYJZFehuO1AR6YEo-8GtNfAlZKIZCji0";
+  const FBV = "10.14.1";
+  const PUSH_API = "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
+  const IS_IOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1);
+  const STANDALONE = !!(window.navigator.standalone || (window.matchMedia && matchMedia("(display-mode: standalone)").matches));
+  const IOS_NEEDS_INSTALL = IS_IOS && !STANDALONE;   // iPhone/iPad allow notifications only from the Home Screen app
+  const PUSH_OK = PHOTO_OK && (PUSH_API || IOS_NEEDS_INSTALL);
+  const PS = {
+    en:{h:"Get the morning brief", p:"One notification each morning when the brief is ready.", on:"Turn on", later:"Not now", row:"Morning brief notification", isOn:"On", isOff:"Off", done:"Morning brief is on. You'll get one notification each morning.", off:"Morning brief notifications are off.", blocked:"Notifications are blocked for this site in your browser settings.", fail:"Couldn't turn on notifications. Try again in a moment.", ios:"On iPhone, add Ripple Brief to your Home Screen first (Share, then Add to Home Screen), then turn this on from there."},
+    ar:{h:"احصل على موجز الصباح", p:"إشعار واحد كل صباح عندما يصبح الموجز جاهزاً.", on:"تفعيل", later:"ليس الآن", row:"إشعار موجز الصباح", isOn:"تشغيل", isOff:"إيقاف", done:"تم تفعيل موجز الصباح. سيصلك إشعار واحد كل صباح.", off:"تم إيقاف إشعارات موجز الصباح.", blocked:"الإشعارات محظورة لهذا الموقع في إعدادات المتصفح.", fail:"تعذّر تفعيل الإشعارات. حاول مجدداً بعد قليل.", ios:"على الآيفون، أضف Ripple Brief إلى الشاشة الرئيسية أولاً (مشاركة ثم إضافة إلى الشاشة الرئيسية)، ثم فعّل الإشعار من هناك."},
+    fr:{h:"Recevoir le briefing du matin", p:"Une notification chaque matin quand le briefing est prêt.", on:"Activer", later:"Pas maintenant", row:"Notification du briefing du matin", isOn:"Activée", isOff:"Désactivée", done:"Briefing du matin activé : une notification chaque matin.", off:"Notifications du briefing du matin désactivées.", blocked:"Les notifications sont bloquées pour ce site dans les réglages du navigateur.", fail:"Impossible d'activer les notifications. Réessayez dans un instant.", ios:"Sur iPhone, ajoutez d'abord Ripple Brief à l'écran d'accueil (Partager, puis Sur l'écran d'accueil), puis activez-les depuis là."}
+  };
+  const PT = () => PS[lang] || PS.en;
+  const lsG = k => { try{ return localStorage.getItem(k)||""; }catch(e){ return ""; } };
+  const lsS = (k,v) => { try{ if (v==null) localStorage.removeItem(k); else localStorage.setItem(k,v); }catch(e){} };
+  let pushState = lsG("rb-push");
+  const loadScript = src => new Promise((ok,no)=>{ const s=document.createElement("script"); s.src=src; s.onload=ok; s.onerror=no; document.head.appendChild(s); });
+  const inTime = (p, ms) => Promise.race([p, new Promise((_,no)=>setTimeout(()=>no(new Error("timeout")), ms))]);
+  async function fbMessaging(){
+    if (!window.firebase || !firebase.messaging){ await loadScript(`https://www.gstatic.com/firebasejs/${FBV}/firebase-app-compat.js`); await loadScript(`https://www.gstatic.com/firebasejs/${FBV}/firebase-messaging-compat.js`); }
+    if (!firebase.apps.length) firebase.initializeApp(FB);
+    return firebase.messaging();
+  }
+  async function sha256hex(s){ const b=await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s)); return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join(""); }
+  const FSDOC = id => `https://firestore.googleapis.com/v1/projects/${FB.projectId}/databases/(default)/documents/pushTokens${id?"/"+id:""}`;
+  const pushDel = id => id ? fetch(FSDOC(id)+`?key=${FB.apiKey}`, {method:"DELETE"}).catch(()=>{}) : Promise.resolve();
+  async function pushSaveLang(id){
+    const r=await fetch(FSDOC(id)+`?updateMask.fieldPaths=lang&currentDocument.exists=true&key=${FB.apiKey}`, {method:"PATCH", headers:{"Content-Type":"application/json"}, body:JSON.stringify({fields:{lang:{stringValue:lang}}})});
+    if (r.ok) lsS("rb-push-lang", lang); return r.ok;
+  }
+  async function pushSave(tok){
+    const id=await sha256hex(tok);
+    let r=await fetch(FSDOC()+`?documentId=${id}&key=${FB.apiKey}`, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({fields:{token:{stringValue:tok}, lang:{stringValue:lang}, created:{timestampValue:new Date().toISOString()}}})});
+    if (r.status===409) { if (!(await pushSaveLang(id))) throw new Error("lang"); }
+    else if (!r.ok) throw new Error("save "+r.status);
+    lsS("rb-push-id", id); lsS("rb-push-lang", lang); lsS("rb-push-chk", String(Date.now()));
+    return id;
+  }
+  async function pushToken(){
+    const reg = await inTime(navigator.serviceWorker.ready, 15000);
+    const m = await inTime(fbMessaging(), 20000);
+    return inTime(m.getToken({vapidKey:VAPID, serviceWorkerRegistration:reg}), 20000);
+  }
+  async function pushOn(){
+    if (IOS_NEEDS_INSTALL){ toast(PT().ios); return; }
+    if (!PUSH_API) return;
+    try{
+      const perm = await Notification.requestPermission();
+      if (perm!=="granted"){ toast(PT().blocked); pushState="later"; lsS("rb-push","later"); render(); return; }
+      const tok = await pushToken();
+      if (!tok) throw new Error("no token");
+      const old = lsG("rb-push-id"), id = await pushSave(tok);
+      if (old && old!==id) pushDel(old);
+      pushState="on"; lsS("rb-push","on"); toast(PT().done);
+    } catch(e){ console.warn("[push]", e); toast(PT().fail); }
+    render(); aaRender();
+  }
+  async function pushOff(){
+    try{ const m=await inTime(fbMessaging(), 20000); await m.deleteToken(); }catch(e){}
+    await pushDel(lsG("rb-push-id"));
+    lsS("rb-push-id", null); lsS("rb-push-lang", null); lsS("rb-push-chk", null);
+    pushState="off"; lsS("rb-push","off"); toast(PT().off); render(); aaRender();
+  }
+  /* every few days: keep the phone's address fresh (browsers rotate it), and tidy up if notifications were switched off in the browser */
+  async function pushRefresh(){
+    try{
+      if (Notification.permission!=="granted"){ await pushDel(lsG("rb-push-id")); lsS("rb-push-id", null); lsS("rb-push-lang", null); pushState="off"; lsS("rb-push","off"); aaRender(); return; }
+      if (Date.now()-Number(lsG("rb-push-chk")||0) < 3*864e5) return;
+      const tok = await pushToken(); if (!tok) return;
+      const old = lsG("rb-push-id"), id = await sha256hex(tok);
+      if (id!==old){ await pushSave(tok); pushDel(old); } else lsS("rb-push-chk", String(Date.now()));
+    }catch(e){ console.warn("[push] refresh", e); }
+  }
+  function pushHtml(){
+    if (!PUSH_OK || pushState) return "";
+    const p=PT();
+    return `<section class="pushcard" dir="${lang==="ar"?"rtl":"ltr"}" lang="${lang}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F2A541" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 8 3 8H3s3-1 3-8"/><path d="M10.3 20a1.9 1.9 0 0 0 3.4 0"/></svg><div class="pc-t"><strong>${esc(p.h)}</strong><span>${esc(p.p)}</span></div><div class="pc-b"><button type="button" data-push="on">${esc(p.on)}</button><button type="button" class="ghost" data-push="later">${esc(p.later)}</button></div></section>`;
+  }
+  function pushRow(){
+    if (!PUSH_OK) return ""; const p=PT(), on=pushState==="on";
+    return `<fieldset><legend>${esc(p.row)}</legend><div class="opts"><button type="button" data-push="on" aria-pressed="${on}">${esc(p.isOn)}</button><button type="button" data-push="off" aria-pressed="${!on}">${esc(p.isOff)}</button></div><p class="note">${esc(p.p)}</p></fieldset>`;
+  }
+  document.addEventListener("click", e=>{
+    const b=e.target.closest("[data-push]"); if (!b) return;
+    const v=b.dataset.push;
+    if (v==="on"){ if (pushState!=="on") pushOn(); }
+    else if (v==="off"){ if (pushState==="on") pushOff(); }
+    else { pushState="later"; lsS("rb-push","later"); render(); }
+  });
+  let pushChecked=false;
+  function pushSync(){
+    if (!PUSH_API || pushState!=="on") return;
+    if (lsG("rb-push-id") && lsG("rb-push-lang")!==lang) pushSaveLang(lsG("rb-push-id")).catch(()=>{});
+    if (!pushChecked){ pushChecked=true; setTimeout(pushRefresh, 4000); }
+  }
+
+  /* opened from the notification: ?open=quick shows the 60-second read; ?open=listen also points at the Listen button */
+  let openLink = "";
+  try{ const u=new URL(location.href); openLink=u.searchParams.get("open")||""; if (openLink){ u.searchParams.delete("open"); history.replaceState(history.state, "", u.pathname+u.search+u.hash); } }catch(e){}
+  function openFromLink(){
+    const o=openLink; openLink=""; if (o!=="quick" && o!=="listen") return;
+    if (!quick) setQuick(true);
+    if (o==="listen") setTimeout(()=>{ const b=document.getElementById("qListen"); if (!b) return; b.classList.add("rb-pulse"); try{ b.focus({preventScroll:true}); }catch(e){} setTimeout(()=>b.classList.remove("rb-pulse"), 4000); }, 400);
+  }
 
 
   let briefs=[], current=null, status=null, series={}, db=null, mcp=null, selEvent=null, indTab="risk";
@@ -2356,7 +2477,7 @@ const ALERT_AT = 75;
           <span class="eyebrow" style="margin-top:6px">${esc(tx.changed)}</span><div class="changes">${changeChips}</div>
           <button type="button" class="sharebtn" id="shareBtn">${SHAREICON}<span>${esc(TU.shareBtn)}</span></button></div>
       </section>
-      ${pricesHtml(raw)}${artsHtml(b, raw, pol)}
+      ${pushHtml()}${pricesHtml(raw)}${artsHtml(b, raw, pol)}
       <section class="sec" id="secPrices"><div class="sec-h"><h2>${esc(tx.indicators)}</h2><span class="aside">${esc(tx.trendsAside)}</span></div>${ind}</section>
       ${(fc||sc||trk)?`<section class="sec"><div class="sec-h"><h2>${esc(tx.outlook)}</h2><span class="aside">${esc(o.horizon||"")}</span></div>
         <div class="outlook"><div class="panel"><h3>${esc(tx.official)}</h3><ul class="fc">${fc||`<li><span class="note">${esc(tx.none)}</span></li>`}</ul></div>
