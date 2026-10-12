@@ -2,7 +2,7 @@
 <title>Ripple Brief</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Public+Sans:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,400..800&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Public+Sans:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap">
 <style>
 /* Layout: alert → day strip → today in brief → outlook → impact map + ranked events → trends → economy/Lebanon lanes → sources. One column on phones. */
 :root{
@@ -458,12 +458,133 @@ details.srcfold[open] .src{margin:4px 0 12px}
 .qmore{justify-self:start}
 html[lang="ar"] .meta{font-family:var(--f-body);letter-spacing:0}
 </style>
+<style>
+/* ---------- v1.0 redesign: look A (sea, tide, foam, amber) + live effects ---------- */
+:root{
+  --bg:#EEF6F5; --surface:#ffffff; --ink:#10202B; --muted:#3E5C66; --line:#D5E7E5; --land:#DCEDEB; --sea:#EEF6F5;
+  --cedar:#16706F; --cedar-soft:#DCEDEB; --amber:#9A5B0B; --amber-soft:#FBEBD0; --red:#B3261E; --red-soft:#FBE6E4; --blue:#2F5D7C;
+  --f-num:"Archivo","Public Sans",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0A1D29; --surface:#112B3A; --ink:#F2EBDD; --muted:#A8C3C5; --line:#21465A; --land:#16384A; --sea:#0B2230;
+  --cedar:#5FB8B0; --cedar-soft:#16384A; --amber:#F2B45A; --amber-soft:#2A2618; --red:#F2857C; --red-soft:#3A1F1D; --blue:#7FB2F0; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0A1D29; --surface:#112B3A; --ink:#F2EBDD; --muted:#A8C3C5; --line:#21465A; --land:#16384A; --sea:#0B2230;
+  --cedar:#5FB8B0; --cedar-soft:#16384A; --amber:#F2B45A; --amber-soft:#2A2618; --red:#F2857C; --red-soft:#3A1F1D; --blue:#7FB2F0; color-scheme:dark}
+html.rb-compact body{line-height:1.42}
+html:not(.rb-compact) .gl{line-height:1.7}
+
+/* header as a sea card */
+.top{background:#0E3A53;color:#fff;border-radius:18px;padding:14px 18px;align-items:center}
+.top h1{display:flex;align-items:center;gap:10px;font-family:"Archivo",var(--f-display);font-stretch:125%;font-size:clamp(21px,3.6vw,30px);color:#fff;letter-spacing:-.01em}
+.top h1 .logo{width:30px;height:30px;flex:none}
+.top .eyebrow{color:#9CCFCB}
+.top .seg{border-color:#2F6B88;background:#164B68;border-radius:999px;padding:2px}
+.top .seg button{color:#CFE6E4;border-radius:999px}
+.top .seg button[aria-pressed="true"]{background:#EEF6F5;color:#0E3A53}
+.top button.icon,.top .aa{background:transparent;color:#fff;border:1px solid #2F6B88}
+.top .status{color:#9CCFCB}.top .status.err{color:#FFB8AE}.top .status.run{color:#FFD9A0}
+.top #refresh{background:#F2A541;border-color:#F2A541;color:#10202B}
+.top .datebadge{color:#fff}
+.aa{display:inline-flex;align-items:baseline;justify-content:center;gap:1px;width:38px;height:38px;padding:0;border-radius:50%;font:700 15px "Archivo",var(--f-body);line-height:36px}
+.aa .s{font-size:11px}
+html[lang="ar"] .aa{font-family:"IBM Plex Sans Arabic",var(--f-body)}
+
+/* hero: ticker, live map, chips, top event */
+.hero{background:#0E3A53;color:#fff;border-radius:18px;overflow:hidden;display:grid}
+.tick{height:32px;overflow:hidden;background:#0B3048;border-block:1px solid #1D5878}
+.tick-in{display:flex;align-items:center;width:max-content;height:30px;animation:rbTick 48s linear infinite}
+.hero[dir="rtl"] .tick-in{animation-name:rbTickR}
+@keyframes rbTick{to{transform:translateX(-50%)}}
+@keyframes rbTickR{to{transform:translateX(50%)}}
+.tick-it{display:inline-flex;align-items:center;gap:6px;padding:0 12px;white-space:nowrap;font-size:12.5px;color:#9CCFCB}
+.tick-it b{color:#fff;font-weight:700;font-family:var(--f-num)}
+.tick-it .up{color:#FFD08A}.tick-it .down{color:#7FE0C3}
+.tick-dot{flex:none;width:5px;height:5px;border-radius:50%;background:#F2A541}
+.hmap{display:block;width:100%;height:auto;max-height:280px}
+.hchips{display:flex;flex-wrap:wrap;gap:8px;padding:2px 18px 12px}
+.hchip{background:#164B68;color:#CFE6E4;border-radius:999px;padding:4px 11px;font-size:12.5px}
+.hchip.r{background:transparent;border:1px solid #F2A541;color:#FFD9A0;padding:3px 11px}
+.htop{display:flex;align-items:center;gap:12px;padding:0 18px 18px;color:#fff;text-decoration:none}
+.htop .ht{display:grid;gap:2px;min-width:0}
+.htop strong{font-size:15.5px;line-height:1.3}
+.htop .hs{font-size:12.5px;color:#9CCFCB}
+.rbadge{flex:none;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font:800 14px var(--f-num);color:#10202B;background:#F2A541}
+.rbadge.hi{background:#E2574C;color:#fff}.rbadge.lo{background:#DCEDEB;color:#0E3A53}
+html:not(.rb-still) .rbadge.glow{box-shadow:0 0 16px rgba(242,165,65,.6)}
+html:not(.rb-still) .rbadge.hi.glow{box-shadow:0 0 16px rgba(226,87,76,.55)}
+
+/* your day in prices */
+.dayp{display:grid;gap:12px}
+.dayp h2,.arts h2{font-family:"Archivo",var(--f-display);font-stretch:118%;font-size:18px;color:var(--ink)}
+html[lang="ar"] .dayp h2,html[lang="ar"] .arts h2{font-family:var(--f-display)}
+.dayp-g{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.dp{display:grid;justify-items:center;gap:4px;text-align:center;min-width:0}
+.dp .ic{width:62px;height:62px;border-radius:50%;background:var(--surface);border:1.5px solid var(--line);display:grid;place-items:center}
+.dp .k{font-size:12px;color:var(--muted);line-height:1.3}
+.dp .v{font:700 15.5px var(--f-num);font-variant-numeric:tabular-nums}
+.dp .c{font-size:11.5px;color:var(--muted)}.dp .c.down{color:var(--cedar);font-weight:600}.dp .c.up{color:var(--amber);font-weight:600}
+
+/* top articles strip (parallax) */
+.arts{display:grid;gap:10px;min-width:0}
+.arts .sub{font-size:13px;color:var(--muted);margin:-6px 0 0}
+.arts-track{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:2px 2px 10px;scrollbar-width:none;overscroll-behavior-x:contain}
+.arts-track::-webkit-scrollbar{display:none}
+.acard{flex:0 0 min(78%,300px);scroll-snap-align:start;border-radius:16px;overflow:hidden;background:var(--surface);border:1px solid var(--line);color:var(--ink);text-decoration:none;display:grid;grid-template-rows:112px auto}
+.acard .im{position:relative;overflow:hidden;background:#0B3048}
+.acard .bk,.acard .mid{position:absolute;top:0;height:100%;will-change:transform}
+.acard .bk{left:-25%;width:150%;background:linear-gradient(180deg,#0B3048 0%,#1F6F86 100%)}
+.acard .bk img{display:block;width:100%;height:100%;object-fit:cover}
+.acard .mid{left:-12%;width:124%}
+.acard .mid svg,.acard .bk svg{display:block;width:100%;height:100%}
+.acard .shade{position:absolute;inset:auto 0 0 0;height:36px;background:linear-gradient(180deg,rgba(8,28,40,0),rgba(8,28,40,.78))}
+.acard .cr{position:absolute;inset-inline-end:8px;bottom:5px;font-size:10px;line-height:1.2;color:#E6F1F0;white-space:nowrap;max-width:calc(100% - 16px);overflow:hidden;text-overflow:ellipsis}
+.acard .rbadge{position:absolute;top:8px;inset-inline-start:8px;width:30px;height:30px;font-size:12px}
+.acard .lng{position:absolute;top:10px;inset-inline-end:8px;background:rgba(11,48,72,.75);color:#CFE6E4;border-radius:999px;padding:1px 8px;font-size:11px}
+.acard .tx{padding:9px 12px 12px;display:grid;gap:4px}
+.acard .so{display:flex;align-items:center;gap:6px;font-size:12px}
+.acard .so b{color:var(--cedar)}.acard .so span{color:var(--muted)}
+.acard .so svg{margin-inline-start:auto;flex:none}
+html[dir="rtl"] .acard .so svg{transform:scaleX(-1)}
+.acard .hl{font-weight:600;font-size:14.5px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.arts-dots{display:flex;gap:7px;justify-content:center}
+.arts-dots span{width:6px;height:6px;border-radius:3px;background:var(--line)}
+.arts-dots span.on{background:#F2A541;width:16px}
+
+/* offline notice */
+.offline{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:11px 14px;margin:0;font-size:14px}
+.offline svg{flex:none;margin-top:2px}
+
+/* reading comfort panel */
+.aapanel{box-sizing:border-box;position:fixed;z-index:60;inset-inline:0;bottom:0;margin-inline:auto;width:min(520px,100%);background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:22px 22px 0 0;padding:10px 20px calc(22px + env(safe-area-inset-bottom,0px));box-shadow:0 -10px 30px rgba(0,0,0,.25);display:grid;gap:16px;max-height:86vh;overflow:auto}
+.aapanel .hd{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.aapanel h2{font-family:"Archivo",var(--f-display);font-stretch:118%;font-size:18px}
+html[lang="ar"] .aapanel h2{font-family:var(--f-display)}
+.aapanel .grab{justify-self:center;width:40px;height:5px;border-radius:3px;background:var(--line)}
+.aapanel fieldset{border:0;margin:0;padding:0;display:grid;gap:8px}
+.aapanel legend{font-weight:600;font-size:14px;padding:0;margin-bottom:8px}
+.aapanel .opts{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:8px}
+.aapanel .opts button{background:transparent;color:var(--muted);border:1px solid var(--line);border-radius:10px;min-height:42px;font-weight:600}
+.aapanel .opts button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.aapanel .note{font-size:12.5px}
+.aascrim{position:fixed;inset:0;z-index:59;background:rgba(3,10,15,.45)}
+
+/* bottom tabs (phones) */
+.tabbar{box-sizing:border-box;position:fixed;z-index:40;inset-inline:0;bottom:0;display:none;grid-template-columns:repeat(4,minmax(0,1fr));background:var(--surface);border-top:1px solid var(--line);padding:6px 6px calc(8px + env(safe-area-inset-bottom,0px))}
+.tabbar button{background:transparent;border:0;color:var(--muted);display:grid;justify-items:center;gap:2px;font-size:11.5px;font-weight:600;padding:4px 2px;min-height:48px;border-radius:10px}
+.tabbar button[aria-current="true"]{color:var(--ink);font-weight:700}
+@media (max-width:760px){.tabbar{display:grid}.wrap{padding-bottom:110px}}
+
+/* motion off: phone setting or in-app switch */
+html.rb-still .tick-in{animation:none}
+@media (prefers-reduced-motion:reduce){.tick-in{animation:none}}
+</style>
 
 <div class="wrap">
   <header class="top">
     <div class="brand">
       <span class="eyebrow" id="dateline"></span>
-      <h1>Ripple Brief</h1>
+      <h1><svg class="logo" viewBox="0 0 30 30" aria-hidden="true"><circle cx="15" cy="15" r="3.5" fill="#F2A541"/><circle cx="15" cy="15" r="8" fill="none" stroke="#7FC8C4" stroke-width="2"/><circle cx="15" cy="15" r="13" fill="none" stroke="#7FC8C4" stroke-width="1.5" opacity="0.55"/></svg>Ripple Brief</h1>
     </div>
     <div class="controls">
       <div class="datebadge" id="datebadge" aria-live="polite"><span class="dw" id="dbW"></span><span class="dd" id="dbD"></span></div>
@@ -475,6 +596,7 @@ html[lang="ar"] .meta{font-family:var(--f-body);letter-spacing:0}
       <button id="refresh" type="button" disabled></button>
       <button id="confirm" type="button" hidden></button>
       <button id="cancel" type="button" class="ghost" hidden></button>
+      <button type="button" class="aa" id="aaBtn" dir="ltr" aria-haspopup="dialog" aria-expanded="false" aria-controls="aaPanel"><span class="s">A</span><span>a</span></button>
       <div class="menuwrap">
         <button type="button" class="icon" id="gear" aria-haspopup="menu" aria-expanded="false" aria-controls="menu"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
         <div class="menu" id="menu" role="menu" hidden>
@@ -492,6 +614,8 @@ html[lang="ar"] .meta{font-family:var(--f-body);letter-spacing:0}
   </main>
   <footer class="foot"><button type="button" id="neon" class="neon" aria-label="Ripple Brief"></button></footer>
 </div>
+<div class="aascrim" id="aaScrim" hidden></div><div class="aapanel" id="aaPanel" role="dialog" aria-labelledby="aaTitle" hidden></div>
+<nav class="tabbar" id="tabbar" aria-label="Sections"></nav>
 <div class="toast" id="toast" role="status" hidden></div>
 
 <script>
@@ -776,8 +900,8 @@ const ALERT_AT = 75;
     const r=document.documentElement.style;
     const enS=`"${en.id}"`, arS=`"${ar.id}"`;
     if (lang==="ar"){ r.setProperty("--f-body",`${arS}, ${enS}, system-ui, sans-serif`); r.setProperty("--f-display",`${arS}, ${enS}, system-ui, sans-serif`); }
-    else { r.setProperty("--f-body",`${enS}, ${arS}, system-ui, sans-serif`); r.setProperty("--f-display",`"Bricolage Grotesque", ${arS}, system-ui, sans-serif`); }
-    r.setProperty("--zoom", ZOOM[prefs.size]||1);
+    else { r.setProperty("--f-body",`${enS}, ${arS}, system-ui, sans-serif`); r.setProperty("--f-display",`"Archivo", ${arS}, system-ui, sans-serif`); }
+    r.setProperty("--zoom", ZOOM[prefs.size]||1); applyComfort();
   }
   function savePrefs(){ try{ localStorage.setItem("rb-prefs",JSON.stringify(prefs)); }catch(e){} applyPrefs(); }
 
@@ -786,6 +910,280 @@ const ALERT_AT = 75;
   let uiOverride=null;
   const curLang = () => uiOverride||lang;
   const t = () => T[curLang()];
+  /* ---------- v1.0 redesign: hero, day in prices, top articles, reading comfort, tabs ---------- */
+  const RD = {
+    en:{ prices:"Your day in prices", pk:{usdlbp:"Dollar in lira", gas95:"Gasoline, 20 L", bread:"Bread bundle", gen_kwh:"Generator kWh"},
+      tk:{usdlbp:"Dollar", gas95:"Gasoline 95", diesel:"Diesel", bread:"Bread", gascyl:"Gas cylinder", gen_kwh:"Generator kWh", brent:"Brent", gold:"Gold"},
+      up:x=>`up ${x}`, down:x=>`down ${x}`, steady:"steady", since:d=>`since ${d}`, lbp:"LBP",
+      arts:"Top articles today", artsSub:"From the news outlets cited in this brief. Changes every morning.", inEn:"In English", filePhoto:"File photo", sat:"Satellite image",
+      tracked:n=>`${n} events tracked`, rising:n=>`${n} rising since yesterday`, topEv:"Top event today", st:{escalating:"rising since yesterday", new:"new today", easing:"easing since yesterday", ongoing:"no change since yesterday"},
+      tabs:["Today","Prices","Wallet","Stories"], aa:"Text size and reading comfort", comfort:"Reading comfort", saved:"Saved on this phone",
+      size:"Text size", sizes:{s:"Small", m:"Medium", l:"Large", xl:"Extra large"}, spacing:"Line spacing", compact:"Compact", relaxed:"Relaxed",
+      look:"Look", light:"Light", night:"Night", auto:"Auto", autoNote:"Auto follows your phone's light or dark setting.",
+      motion:"Moving effects", motionNote:"Turn off for a still screen. Your phone's reduce-motion setting turns them off too.", on:"On", off:"Off",
+      offline:t=>`No connection. Showing the briefing saved on your phone${t?`, last updated ${t}`:""}.`, beirut:"Beirut", map:"Live map of today's events and how they reach Beirut" },
+    ar:{ prices:"أسعار يومك", pk:{usdlbp:"الدولار بالليرة", gas95:"بنزين 95، 20 ليتراً", bread:"ربطة الخبز", gen_kwh:"كيلوواط المولّد"},
+      tk:{usdlbp:"الدولار", gas95:"بنزين 95", diesel:"مازوت", bread:"ربطة الخبز", gascyl:"قارورة الغاز", gen_kwh:"كيلوواط المولّد", brent:"برنت", gold:"الذهب"},
+      up:x=>`ارتفع \u2066${x}\u2069`, down:x=>`انخفض \u2066${x}\u2069`, steady:"مستقر", since:d=>`منذ ${d}`, lbp:"ل.ل.",
+      arts:"أبرز المقالات اليوم", artsSub:"من وسائل الإعلام التي يستند إليها موجز اليوم، وتتجدّد كل صباح.", inEn:"بالإنجليزية", filePhoto:"صورة أرشيفية", sat:"صورة فضائية",
+      tracked:n=>`نتابع ${n} أحداث`, rising:n=>`${n} منها في تصاعد منذ أمس`, topEv:"أبرز حدث اليوم", st:{escalating:"في تصاعد منذ أمس", new:"جديد اليوم", easing:"تهدئة منذ أمس", ongoing:"دون تغيير منذ أمس"},
+      tabs:["اليوم","الأسعار","محفظتي","القصص"], aa:"حجم النص وراحة القراءة", comfort:"راحة القراءة", saved:"محفوظ على هذا الهاتف",
+      size:"حجم النص", sizes:{s:"صغير", m:"وسط", l:"كبير", xl:"كبير جداً"}, spacing:"تباعد الأسطر", compact:"متقارب", relaxed:"مريح",
+      look:"المظهر", light:"فاتح", night:"ليلي", auto:"تلقائي", autoNote:"يتبع الوضع التلقائي إعداد الفاتح أو الداكن في هاتفك.",
+      motion:"المؤثرات المتحركة", motionNote:"أوقفها لشاشة ثابتة. يوقفها أيضاً إعداد تقليل الحركة في هاتفك.", on:"تشغيل", off:"إيقاف",
+      offline:t=>`لا يوجد اتصال. نعرض الموجز المحفوظ على هاتفك${t?`، آخر تحديث ${t}`:""}.`, beirut:"بيروت", map:"خريطة حيّة لأحداث اليوم وكيف يصل أثرها إلى بيروت" },
+    fr:{ prices:"Votre journée en prix", pk:{usdlbp:"Dollar en livres", gas95:"Essence, 20 L", bread:"Paquet de pain", gen_kwh:"kWh du générateur"},
+      tk:{usdlbp:"Dollar", gas95:"Essence 95", diesel:"Diesel", bread:"Pain", gascyl:"Bouteille de gaz", gen_kwh:"kWh générateur", brent:"Brent", gold:"Or"},
+      up:x=>`en hausse de ${x}`, down:x=>`en baisse de ${x}`, steady:"stable", since:d=>`depuis le ${d}`, lbp:"LL",
+      arts:"Articles clés du jour", artsSub:"Des médias cités dans ce briefing. Mis à jour chaque matin.", inEn:"En anglais", filePhoto:"Photo d'archive", sat:"Image satellite",
+      tracked:n=>`${n} événements suivis`, rising:n=>`${n} en hausse depuis hier`, topEv:"Événement principal du jour", st:{escalating:"en hausse depuis hier", new:"nouveau aujourd'hui", easing:"en baisse depuis hier", ongoing:"inchangé depuis hier"},
+      tabs:["Aujourd'hui","Prix","Portefeuille","Sujets"], aa:"Taille du texte et confort de lecture", comfort:"Confort de lecture", saved:"Enregistré sur ce téléphone",
+      size:"Taille du texte", sizes:{s:"Petit", m:"Moyen", l:"Grand", xl:"Très grand"}, spacing:"Interlignage", compact:"Serré", relaxed:"Aéré",
+      look:"Apparence", light:"Clair", night:"Nuit", auto:"Auto", autoNote:"Auto suit le réglage clair ou sombre de votre téléphone.",
+      motion:"Effets animés", motionNote:"Désactivez-les pour un écran fixe. Le réglage « réduire les animations » du téléphone les coupe aussi.", on:"Activés", off:"Désactivés",
+      offline:t=>`Pas de connexion. Voici le briefing enregistré sur votre téléphone${t?`, mis à jour ${t}`:""}.`, beirut:"Beyrouth", map:"Carte en direct des événements du jour et de leur effet sur Beyrouth" }
+  };
+  const RT = () => RD[curLang()] || RD.en;
+  ZOOM.xl = 1.25;
+  const HOST_THEME = document.documentElement.getAttribute("data-theme");
+  const motionOK = () => prefs.motion!=="off" && !(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
+  function applyComfort(){
+    const r=document.documentElement;
+    r.classList.toggle("rb-compact", prefs.spacing==="compact");
+    r.classList.toggle("rb-still", prefs.motion==="off");
+    if (prefs.look==="light") r.setAttribute("data-theme","light");
+    else if (prefs.look==="night") r.setAttribute("data-theme","dark");
+    else if (prefs.look==="auto" && r.dataset.rbSet){ if (HOST_THEME) r.setAttribute("data-theme",HOST_THEME); else r.removeAttribute("data-theme"); }
+    if (prefs.look==="light"||prefs.look==="night") r.dataset.rbSet="1"; else delete r.dataset.rbSet;
+  }
+  const scoreTier = s => s>=75 ? "hi" : s>=50 ? "" : "lo";
+  const scoreHex = s => s>=75 ? "#E2574C" : s>=50 ? "#F2A541" : "#7FC8C4";
+
+  /* indicators: number, change in plain words */
+  const rawIndOf = (raw, key) => (raw.indicators||[]).find(x=>x&&x.key===key);
+  const numOf = i => { const n=Number(i&&i.num); if (isFinite(n) && i.num!=="" && i.num!=null) return n; const m=String((i&&i.value)||"").replace(/,/g,"").match(/-?\d+(\.\d+)?/); return m?Number(m[0]):NaN; };
+  function chgOf(ri, date){
+    const tx=RT(); const c=String((ri&&ri.change)||"");
+    if (ri && ri.asOfDate && date && (new Date(date+"T12:00:00")-new Date(ri.asOfDate+"T12:00:00"))/864e5 > 14) return {txt:tx.since(fmtDate(ri.asOfDate,{day:"numeric",month:"short"})), cls:"", arrow:""};
+    if (/^(stable|unchanged|steady|flat)/i.test(c)) return {txt:tx.steady, cls:"", arrow:""};
+    const pct=c.match(/\(([+−-]\s?[\d.,]+%)\)/), first=c.match(/^([+−-])\s?([\d.,]+%?)/);
+    const s = pct ? pct[1] : first ? first[0] : "";
+    if (!s) return {txt:"", cls:"", arrow:""};
+    const up=/^\+/.test(s), mag=s.replace(/^[+−-]\s?/,"");
+    return {txt: up?tx.up(mag):tx.down(mag), cls: up?"up":"down", arrow:(up?"▲ ":"▼ ")+mag};
+  }
+  const LBPK = new Set(["usdlbp","gas95","diesel","gascyl","bread","gen_kwh"]);
+  const showVal = (ri, key) => LBPK.has(key) && isFinite(numOf(ri)) ? numOf(ri).toLocaleString("en-US") : String(ri.value||"");
+
+  function tickerHtml(raw){
+    const tx=RT();
+    const it = ["usdlbp","gas95","diesel","bread","gascyl","gen_kwh","brent","gold"].map(k=>{ const ri=rawIndOf(raw,k); if(!ri||!ri.value) return ""; const ch=chgOf(ri, raw.date);
+      return `<span class="tick-it"><span>${esc(tx.tk[k])}</span><b><bdi>${esc(showVal(ri,k))}${k==="usdlbp"?" "+esc(tx.lbp):""}</bdi></b>${ch.arrow?`<span class="${ch.cls}"><bdi>${esc(ch.arrow)}</bdi></span>`:ch.txt&&!ch.txt.includes(" ")?`<span>${esc(ch.txt)}</span>`:""}</span><span class="tick-dot" aria-hidden="true"></span>`; }).join("");
+    if (!it) return "";
+    return `<div class="tick" aria-hidden="true"><div class="tick-in">${it}${it}</div></div>`;
+  }
+
+  /* hero map: today's events placed on a stylised regional map, effects flowing to Beirut */
+  const MX = lon => (lon-28)/34*390, MY = lat => (38-lat)/18*222;
+  function heroMap(pol){
+    const tx=RT(), mv=motionOK(), rtl=curLang()==="ar";
+    const pts = pol.filter(p=>isFinite(Number(p.lon))&&isFinite(Number(p.lat))).map(p=>({p, x:MX(Number(p.lon)), y:MY(Number(p.lat))})).filter(q=>q.x>=6&&q.x<=384&&q.y>=6&&q.y<=216);
+    const bx=MX(35.5), by=MY(33.89);
+    const waves=[26,62,98,134,170,206].map((y,i)=>`<path d="M0 ${y} C${60+i*5} ${y-8} ${120+i*5} ${y+8} ${180+i*5} ${y} S${300} ${y-8} 390 ${y+2}" fill="none" stroke="#1D5878" stroke-width="1.2"/>`).join("");
+    const top = pts[0] && pts[0].p===pol[0] ? pts[0] : null;
+    const A = (a, v, d, extra="") => mv ? `<animate attributeName="${a}" values="${v}" dur="${d}" repeatCount="indefinite"${extra}/>` : "";
+    let fx="";
+    if (top){
+      const c=scoreHex(top.p._s);
+      fx = `<g transform="translate(${top.x.toFixed(1)} ${top.y.toFixed(1)}) scale(1 0.58)">${[36,72,108,144].map((r,i)=>`<circle r="${r}" fill="none" stroke="#5FA9B5" stroke-width="1.2" opacity="${[.55,.4,.28,.18][i]}" vector-effect="non-scaling-stroke"/>`).join("")}
+        ${mv?`<path d="M0 0 L0 -144 A144 144 0 0 1 101.8 -101.8 Z" fill="#F2A541" opacity="0.14"><animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="7s" repeatCount="indefinite"/></path>
+        <circle r="10" fill="none" stroke="#9BD6CF" stroke-width="2.2" vector-effect="non-scaling-stroke">${A("r","10;168","3.4s")}${A("opacity","0.95;0","3.4s")}</circle>
+        <circle r="10" fill="none" stroke="#9BD6CF" stroke-width="2.2" vector-effect="non-scaling-stroke" opacity="0">${A("r","10;168","3.4s",' begin="1.7s"')}${A("opacity","0.95;0","3.4s",' begin="1.7s"')}</circle>`:""}</g>
+        <path d="M${top.x.toFixed(1)} ${top.y.toFixed(1)} Q${((top.x+bx)/2-20).toFixed(1)} ${((top.y+by)/2-30).toFixed(1)} ${bx.toFixed(1)} ${by.toFixed(1)}" fill="none" stroke="#9BD6CF" stroke-width="2" stroke-linecap="round" stroke-dasharray="2 7" opacity="0.85">${A("stroke-dashoffset","0;-18","0.9s")}</path>`;
+      void c;
+    }
+    const boxes=[[bx-6, by-24, 70, 20]];
+    const hit = r => boxes.some(o=>r[0]<o[0]+o[2] && r[0]+r[2]>o[0] && r[1]<o[1]+o[3] && r[1]+r[3]>o[1]);
+    const lbl = (q) => { const name=String(q.p.region||q.p.title||"").split("/")[0].trim().slice(0,22)+" "+q.p._s; const w=name.length*6.6+4;
+      const cands=[[q.x+10,q.y-6],[q.x+10,q.y+16],[q.x-10-w,q.y-6],[q.x-10-w,q.y+16],[q.x-w/2,q.y-14],[q.x-w/2,q.y+24]];
+      let c=cands.find(([x,y])=>x>=2&&x+w<=388&&y>=12&&y<=218&&!hit([x,y-12,w,15])); if(!c) return ""; boxes.push([c[0],c[1]-12,w,15]);
+      return `<text x="${c[0].toFixed(1)}" y="${c[1].toFixed(1)}" fill="#FFE2A8" font-size="12" font-weight="600"${rtl?` direction="rtl" text-anchor="end"`:""}>${esc(name)}</text>`; };
+    const dots = pts.slice(0,6).map((q,i)=>{ const c=scoreHex(q.p._s), r=q===top?7:(q.p._s>=50?5:4);
+      return `<circle cx="${q.x.toFixed(1)}" cy="${q.y.toFixed(1)}" r="${r+3}" fill="${c}" opacity="0.35">${q.p._s>=50?A("r",`${r};${r*2.6}`,`${(1.8+i*.3).toFixed(1)}s`)+A("opacity","0.5;0",`${(1.8+i*.3).toFixed(1)}s`):""}</circle><circle cx="${q.x.toFixed(1)}" cy="${q.y.toFixed(1)}" r="${r}" fill="${c}"/>${i<4?lbl(q):""}`; }).join("");
+    const beirut = `<circle cx="${bx.toFixed(1)}" cy="${by.toFixed(1)}" r="10" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.6"/><circle cx="${bx.toFixed(1)}" cy="${by.toFixed(1)}" r="5" fill="#fff"/><text x="${(bx-2).toFixed(1)}" y="${(by-12).toFixed(1)}" fill="#fff" font-size="12.5" font-weight="700"${rtl?' direction="rtl" text-anchor="end"':""}>${esc(tx.beirut)}</text>`;
+    return `<svg class="hmap" viewBox="0 0 390 222" role="img" aria-label="${esc(tx.map)}" style="font-family:var(--f-body)">${waves}${fx}${dots}${beirut}</svg>`;
+  }
+
+  function heroHtml(b, raw, pol){
+    const tx=RT();
+    const rising = (b.politics||[]).filter(p=>p.status==="escalating").length;
+    const top = pol[0];
+    const topRow = top ? `<a class="htop" href="#ev${top._i}" data-pick="${top._i}"><span class="rbadge ${scoreTier(top._s)} glow">${top._s}</span><span class="ht"><strong>${esc(top.title)}</strong><span class="hs">${esc(tx.topEv)}${top.status&&tx.st[top.status]?", "+esc(tx.st[top.status]):""}</span></span></a>` : "";
+    return `<section class="hero" dir="${curLang()==="ar"?"rtl":"ltr"}">${tickerHtml(raw)}${heroMap(pol)}
+      <div class="hchips"><span class="hchip">${esc(tx.tracked((b.politics||[]).length))}</span>${rising?`<span class="hchip r">${esc(tx.rising(rising))}</span>`:""}</div>${topRow}</section>`;
+  }
+
+  /* your day in prices */
+  const PICONS = {
+    usdlbp:`<svg width="40" height="40" viewBox="0 0 46 46" aria-hidden="true"><rect x="7" y="14" width="32" height="19" rx="3.5" fill="none" stroke="currentColor" stroke-width="2.2"/><circle cx="23" cy="23.5" r="5" fill="#F2A541"/><path d="M12 18.5h2M32 28.5h2" stroke="#1F8A8A" stroke-width="2.2" stroke-linecap="round"/><path d="M9 38c4-2 8-2 12 0s8 2 12 0" fill="none" stroke="#7FC8C4" stroke-width="1.8" stroke-linecap="round"/></svg>`,
+    gas95:`<svg width="40" height="40" viewBox="0 0 46 46" aria-hidden="true"><rect x="10" y="9" width="17" height="27" rx="3" fill="none" stroke="currentColor" stroke-width="2.2"/><rect x="13.5" y="13" width="10" height="7" rx="1.5" fill="#F2A541"/><path d="M27 17h3.5l4.5 4.5v10a2.3 2.3 0 0 1-4.6 0V26H27" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 38c4-2 8-2 12 0s8 2 12 0" fill="none" stroke="#7FC8C4" stroke-width="1.8" stroke-linecap="round"/></svg>`,
+    bread:`<svg width="40" height="40" viewBox="0 0 46 46" aria-hidden="true"><ellipse cx="23" cy="30" rx="15" ry="5.5" fill="#FBEBD0" stroke="currentColor" stroke-width="2"/><ellipse cx="23" cy="24.5" rx="15" ry="5.5" fill="#FBEBD0" stroke="currentColor" stroke-width="2"/><ellipse cx="23" cy="19" rx="15" ry="5.5" fill="#FBEBD0" stroke="currentColor" stroke-width="2"/><circle cx="17" cy="18" r="1.3" fill="#F2A541"/><circle cx="27" cy="20" r="1.3" fill="#F2A541"/><circle cx="23" cy="17" r="1.1" fill="#F2A541"/></svg>`,
+    gen_kwh:`<svg width="40" height="40" viewBox="0 0 46 46" aria-hidden="true"><rect x="8" y="14" width="30" height="18" rx="3.5" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M25 16.5l-6 8h4.5L22 30l6.5-8.5H24z" fill="#F2A541"/><path d="M12 32v4M34 32v4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M38 20h3M38 26h3" stroke="#1F8A8A" stroke-width="2" stroke-linecap="round"/></svg>`
+  };
+  function pricesHtml(raw){
+    const tx=RT();
+    const tiles = ["usdlbp","gas95","bread","gen_kwh"].map(k=>{ const ri=rawIndOf(raw,k); if(!ri) return ""; const ch=chgOf(ri, raw.date);
+      return `<div class="dp"><span class="ic" style="color:var(--ink)">${PICONS[k]}</span><span class="k">${esc(tx.pk[k])}</span><span class="v"><bdi>${esc(showVal(ri,k))}</bdi></span><span class="c ${ch.cls}">${esc(ch.txt)}</span></div>`; }).join("");
+    return tiles ? `<section class="dayp" id="secDay"><h2>${esc(tx.prices)}</h2><div class="dayp-g">${tiles}</div></section>` : "";
+  }
+
+  /* top articles: one card per top event, from a major outlet when the brief cites one */
+  const MAJOR=/reuters|associated press|\bap\b|al jazeera|bloomberg|\bbbc\b|\bcnn\b|cnbc|axios|financial times|guardian|new york times|washington post|wall street journal|l'orient|anadolu|al arabiya|the national|al-monitor|france 24|\bafp\b|\bdw\b|naharnet|lbci|annahar|al bawaba|korea times|kyodo|nikkei/i;
+  function pickArticle(rp){
+    const list=(rp.more||[]).filter(m=>m&&safeUrl(m.url));
+    const m = list.find(x=>MAJOR.test(x.source||"")) || list[0];
+    if (m) return {src:m.source||"", title:m.title||"", url:m.url};
+    return safeUrl(rp.url) ? {src:rp.source||"", title:rp.title||"", url:rp.url} : null;
+  }
+  const RMON={Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Sept:8,Oct:9,Nov:10,Dec:11};
+  function artDate(title, year){
+    const m=String(title).match(/\(([A-Z][a-z]{2,4})\.? (\d{1,2})\)\s*$/); if (!m || !(m[1] in RMON)) return "";
+    const d=new Date(Date.UTC(Number(year), RMON[m[1]], Number(m[2]))); return d.toISOString().slice(0,10);
+  }
+  const cleanTitle = s => String(s).replace(/\s*\([A-Z][a-z]{2,4}\.? \d{1,2}\)\s*$/,"").trim();
+  const cleanSrc = s => String(s).replace(/\s*\(.*?\)\s*/g," ").replace(/\s+live updates$/i,"").trim();
+  const TOPIC=[["leb",/lebanon|lebanese|beirut/i],["talk",/talk|deal|negotiat|ceasefire|truce|reply|response|proposal|summit|agree/i],["sea",/ship|tanker|vessel|shipping|maritime|seafarer|navy|hormuz/i],["air",/airport|air ?strike|flight|aviation|plane/i],["fuel",/oil|diesel|fuel|gasoline|refiner|energy|opec|brent|crude/i]];
+  const topicOf = s => { for (const [k,re] of TOPIC) if (re.test(s)) return k; return "gen"; };
+  const SCENE = {
+    air:`<path d="M40 60 H330" stroke="#2F6B88" stroke-width="1"/><path d="M150 92 L218 92 L196 60 L172 60 Z" fill="#164B68"/><path d="M184 64 V90" stroke="#9BD6CF" stroke-width="1.6" stroke-dasharray="4 4"/><rect x="268" y="28" width="9" height="32" fill="#CFE6E4" opacity="0.9"/><rect x="262" y="20" width="21" height="9" rx="2" fill="#EEF6F5"/><circle cx="252" cy="58" r="11" fill="#F2A541" opacity="0.28"/><circle cx="252" cy="58" r="4" fill="#F2A541"/><g fill="#EEF6F5"><rect x="96" y="28" width="46" height="6" rx="3"/><path d="M114 31 L124 31 L113 45 L106 45 Z"/><path d="M114 31 L124 31 L116 22 L110 22 Z" opacity="0.75"/><path d="M97 31 L102 31 L97 21 L93 21 Z"/></g>`,
+    sea:`<path d="M250 62 Q300 44 380 50 L380 92 L250 92 Z" fill="#164B68"/><path d="M96 60 L262 60 L250 76 L108 76 Z" fill="#CFE6E4"/><rect x="104" y="72" width="152" height="4" fill="#7FC8C4"/><rect x="226" y="40" width="24" height="20" rx="2" fill="#EEF6F5"/><rect x="236" y="32" width="7" height="9" fill="#F2A541"/><path d="M116 56 H220" stroke="#7FC8C4" stroke-width="2"/><path d="M0 80 C40 74 80 86 120 80 S200 74 240 80 S320 86 380 80" fill="none" stroke="#9BD6CF" stroke-width="1.6" opacity="0.7"/><path d="M0 88 C40 82 80 94 120 88 S200 82 240 88 S320 94 380 88" fill="none" stroke="#EEF6F5" stroke-width="1.2" opacity="0.4"/>`,
+    leb:`<circle cx="276" cy="24" r="9" fill="#F2A541" opacity="0.85"/><path d="M0 66 Q80 42 170 58 T380 50 L380 92 L0 92 Z" fill="#1F6B73"/><path d="M0 80 Q110 60 220 74 T380 70 L380 92 L0 92 Z" fill="#2A8A86"/><path d="M150 74 V62" stroke="#0E3A53" stroke-width="2.5"/><circle cx="150" cy="56" r="9" fill="#9BD6CF"/><path d="M186 72 V58" stroke="#0E3A53" stroke-width="2.5"/><circle cx="186" cy="52" r="11" fill="#7FC8C4"/><path d="M222 74 V63" stroke="#0E3A53" stroke-width="2.5"/><circle cx="222" cy="57" r="8" fill="#9BD6CF"/><g fill="#EEF6F5"><rect x="104" y="62" width="18" height="12"/><path d="M101 63 L113 54 L125 63 Z"/></g>`,
+    talk:`<g fill="none" stroke="#EEF6F5" stroke-width="2" stroke-linejoin="round"><rect x="112" y="40" width="44" height="30" rx="3"/><path d="M112 42 L134 58 L156 42"/><rect x="214" y="30" width="44" height="30" rx="3"/><path d="M214 32 L236 48 L258 32"/></g><path d="M160 44 Q186 14 210 34" fill="none" stroke="#9BD6CF" stroke-width="1.6" stroke-dasharray="3 5"/><path d="M212 62 Q186 84 160 68" fill="none" stroke="#F2A541" stroke-width="1.6" stroke-dasharray="3 5"/>`,
+    fuel:`<path d="M0 78 H380" stroke="#2F6B88" stroke-width="2"/><rect x="120" y="44" width="92" height="26" rx="13" fill="#CFE6E4"/><rect x="120" y="54" width="92" height="5" fill="#F2A541"/><path d="M216 50 H238 L250 62 V72 H216 Z" fill="#EEF6F5"/><rect x="224" y="54" width="14" height="8" rx="1.5" fill="#1F6F86"/><rect x="116" y="68" width="136" height="5" fill="#7FC8C4"/><g fill="#0E3A53" stroke="#CFE6E4" stroke-width="2"><circle cx="140" cy="76" r="6"/><circle cx="196" cy="76" r="6"/><circle cx="238" cy="76" r="6"/></g>`,
+    gen:`<g fill="none" stroke="#9BD6CF"><circle cx="190" cy="50" r="12" opacity=".8"/><circle cx="190" cy="50" r="26" opacity=".5"/><circle cx="190" cy="50" r="42" opacity=".3"/></g><circle cx="190" cy="50" r="5" fill="#F2A541"/>`
+  };
+  const RINGS = `<svg viewBox="0 0 520 92" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><g fill="none" stroke="#5FA9B5" stroke-width="1"><circle cx="90" cy="20" r="18" opacity="0.28"/><circle cx="90" cy="20" r="34" opacity="0.15"/><circle cx="300" cy="14" r="22" opacity="0.24"/><circle cx="300" cy="14" r="42" opacity="0.12"/><circle cx="460" cy="26" r="16" opacity="0.26"/><circle cx="460" cy="26" r="30" opacity="0.14"/></g></svg>`;
+
+  /* photos: approved library first, then a careful Wikimedia search; website only (the Claude version can't load outside pictures) */
+  const PHOTO_OK = /(^|\.)github\.io$/.test(location.hostname);
+  const PLIB = [
+    {t:"leb", re:/lebanon/i, file:"Olive field in Bterram.jpg", kind:"file"},
+    {t:"sea", re:/./, file:"A Whale.jpg", kind:"file"},
+    {t:"air", re:/riyadh|saudi/i, file:"Riyadh 1749852957748.jpg", kind:"file"},
+    {t:"talk", re:/iran|hormuz/i, file:"Strait of Hormuz (MODIS 2020-12-04).jpg", kind:"sat"},
+    {t:"fuel", re:/./, file:"MiRO2c.jpg", kind:"file"}
+  ];
+  const PBAD=/dead|body|bodies|corpse|blood|wound|injur|killed|victim|funeral|massacre|explos|destroy|ruin|rubble|attack|war\b|soldier|weapon|missile|militant|terror|riot|protest|portrait|logo|map of|chart|graph|diagram|flag/i;
+  const photoMem = {};
+  try{ Object.assign(photoMem, JSON.parse(localStorage.getItem("rb-photos")||"{}")); }catch(e){}
+  const savePhotos = () => { try{ const k=Object.keys(photoMem); if (k.length>80) k.slice(0,k.length-80).forEach(x=>delete photoMem[x]); localStorage.setItem("rb-photos", JSON.stringify(photoMem)); }catch(e){} };
+  const stripHtml = s => String(s||"").replace(/<[^>]+>/g," ").replace(/\s+/g," ").trim();
+  const photoKey = a => a.lib ? "lib:"+a.lib.file : "q:"+a.q;
+  async function fetchPhoto(a){
+    const key=photoKey(a); if (photoMem[key] && (Date.now()-photoMem[key].at) < 7*864e5) return photoMem[key];
+    const base="https://commons.wikimedia.org/w/api.php?action=query&format=json&origin=*&prop=imageinfo&iiprop=url|size|extmetadata&iiurlwidth=800&iiextmetadatafilter=LicenseShortName|Artist|ImageDescription";
+    let page=null;
+    if (a.lib){ const j=await fetch(base+"&titles="+encodeURIComponent("File:"+a.lib.file)).then(r=>r.json()); page=Object.values((j.query&&j.query.pages)||{})[0]; }
+    else {
+      const j=await fetch(base+"&generator=search&gsrnamespace=6&gsrlimit=12&gsrsearch="+encodeURIComponent(a.q+" filetype:bitmap")).then(r=>r.json());
+      page=Object.values((j.query&&j.query.pages)||{}).sort((x,y)=>x.index-y.index).find(p=>{ const ii=(p.imageinfo||[])[0]; if(!ii||!ii.thumburl) return false; const m=ii.extmetadata||{}; const txt=p.title+" "+stripHtml(m.ImageDescription&&m.ImageDescription.value);
+        return ii.width>=ii.height*1.25 && ii.width>=800 && !PBAD.test(txt) && (m.LicenseShortName&&m.LicenseShortName.value); });
+    }
+    const ii=page&&(page.imageinfo||[])[0]; if (!ii||!ii.thumburl) { photoMem[key]={at:Date.now(), none:true}; savePhotos(); return photoMem[key]; }
+    const m=ii.extmetadata||{};
+    const by=stripHtml(m.Artist&&m.Artist.value).replace(/^(U\.S\.|US) (Coast Guard|Navy) photo by .*/i,"US $2").slice(0,40);
+    photoMem[key]={at:Date.now(), src:ii.thumburl, page:ii.descriptionurl, by, lic:stripHtml(m.LicenseShortName&&m.LicenseShortName.value), kind:a.lib?a.lib.kind:"file"};
+    savePhotos(); return photoMem[key];
+  }
+  const credit = ph => `${ph.kind==="sat"?RT().sat:RT().filePhoto} · ${ph.by?ph.by+", ":""}${ph.lic}`;
+  const photoLayer = ph => `<img src="${esc(ph.src)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">`;
+
+  let artList = [];
+  function artsHtml(b, raw, pol){
+    const tx=RT(), en=curLang()==="en", year=String(raw.date||"").slice(0,4)||String(new Date().getFullYear());
+    artList = pol.slice(0,5).map(p=>{ const rp=(raw.politics||[])[p._i]||p; const a=pickArticle(rp); if(!a) return null;
+      const all=[rp.title, a.title, rp.region].join(" "), t=topicOf(all);
+      const lib=PLIB.find(x=>x.t===t && x.re.test(all));
+      const q=lib?"":[String(rp.region||"").split("/")[0], {air:"airport",sea:"tanker ship",leb:"Lebanon landscape",talk:"city skyline",fuel:"oil refinery",gen:"landscape"}[t]].join(" ").trim();
+      return {p, a, t, lib, q, date:artDate(a.title, year)||raw.date}; }).filter(Boolean);
+    if (!artList.length) return "";
+    const cards = artList.map((x,i)=>{ const ph=PHOTO_OK && photoMem[photoKey(x)] && !photoMem[photoKey(x)].none ? photoMem[photoKey(x)] : null;
+      return `<a class="acard" href="${esc(safeUrl(x.a.url))}" target="_blank" rel="noopener" data-art="${i}"><span class="im"><span class="bk">${ph?photoLayer(ph):RINGS}</span>${ph?"":`<span class="mid"><svg viewBox="0 0 380 92" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${SCENE[x.t]}</svg></span>`}${ph?`<span class="shade"></span><span class="cr" title="${esc(credit(ph))}">${esc(credit(ph))}</span>`:""}<span class="rbadge ${scoreTier(x.p._s)}">${x.p._s}</span>${en?"":`<span class="lng">${esc(tx.inEn)}</span>`}</span>
+        <span class="tx"><span class="so"><b>${esc(cleanSrc(x.a.src))}</b><span>${esc(fmtDate(x.date,{day:"numeric",month:"short"}))}</span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></span><span class="hl">${esc(en?cleanTitle(x.a.title):x.p.title)}</span></span></a>`; }).join("");
+    return `<section class="arts" id="secArts"><h2>${esc(tx.arts)}</h2><p class="sub">${esc(tx.artsSub)}</p><div class="arts-track">${cards}</div><div class="arts-dots" aria-hidden="true">${artList.map((_,i)=>`<span${i?"":` class="on"`}></span>`).join("")}</div></section>`;
+  }
+
+  /* parallax: layers inside each card move slower than the card as the strip scrolls */
+  let artTimer=null, artPaused=false; const photoBusy={};
+  function artsWire(){
+    const tr=document.querySelector(".arts-track"); clearInterval(artTimer); if (!tr) return;
+    const cards=[...tr.querySelectorAll(".acard")], dots=[...document.querySelectorAll(".arts-dots span")];
+    const upd = () => { const r=tr.getBoundingClientRect(), cx=r.left+r.width/2; let best=0, bd=1e9;
+      cards.forEach((c,i)=>{ const cr=c.getBoundingClientRect(), off=(cr.left+cr.width/2)-cx; if (Math.abs(off)<bd){bd=Math.abs(off); best=i;}
+        if (motionOK()){ const bk=c.querySelector(".bk"), md=c.querySelector(".mid"); if(bk) bk.style.transform=`translateX(${(-off*0.22).toFixed(1)}px)`; if(md) md.style.transform=`translateX(${(-off*0.1).toFixed(1)}px)`; } });
+      dots.forEach((d,i)=>d.classList.toggle("on", i===best)); };
+    let raf=0; tr.addEventListener("scroll", ()=>{ if(!raf) raf=requestAnimationFrame(()=>{ raf=0; upd(); }); }, {passive:true});
+    ["pointerdown","touchstart","wheel","focusin"].forEach(ev=>tr.addEventListener(ev, ()=>{ artPaused=true; }, {passive:true}));
+    upd();
+    if (motionOK() && cards.length>1) artTimer=setInterval(()=>{ if (artPaused || document.hidden || !document.body.contains(tr)) return;
+      const rtl=getComputedStyle(tr).direction==="rtl", step=(cards[0].getBoundingClientRect().width+12)*(rtl?-1:1);
+      const atEnd = rtl ? (tr.scrollLeft <= -(tr.scrollWidth-tr.clientWidth)+4) : (tr.scrollLeft >= tr.scrollWidth-tr.clientWidth-4);
+      if (atEnd) tr.scrollTo({left:0, behavior:"smooth"}); else tr.scrollBy({left:step, behavior:"smooth"}); }, 5200);
+    if (PHOTO_OK) artList.forEach((x,i)=>{ const k=photoKey(x); if (photoMem[k] || photoBusy[k]) return; photoBusy[k]=fetchPhoto(x).finally(()=>{ delete photoBusy[k]; }); photoBusy[k].then(ph=>{ if (!ph||ph.none) return; const c=document.querySelector(`.arts-track [data-art="${i}"] .im`); if(!c || c.querySelector("img")) return;
+      c.querySelector(".bk").innerHTML=photoLayer(ph); const md=c.querySelector(".mid"); if(md) md.remove();
+      c.querySelector(".bk").insertAdjacentHTML("afterend", `<span class="shade"></span><span class="cr" title="${esc(credit(ph))}">${esc(credit(ph))}</span>`); upd(); }).catch(()=>{}); });
+  }
+
+  /* offline notice (website) */
+  const offlineHtml = raw => (typeof navigator!=="undefined" && navigator.onLine===false) ? `<p class="offline" role="status"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M2 8.5a15 15 0 0 1 20 0"/><path d="M5.5 12a10 10 0 0 1 13 0"/><path d="M9 15.5a5 5 0 0 1 6 0"/><path d="M3 3l18 18"/></svg><span>${esc(RT().offline(raw.generatedAt||""))}</span></p>` : "";
+  window.addEventListener("online", ()=>render()); window.addEventListener("offline", ()=>render());
+
+  /* reading comfort panel (Aa button) */
+  function aaRender(){
+    const p=$("#aaPanel"); if (!p || p.hidden) return; const tx=RT();
+    const opt = (k, v, label) => `<button type="button" data-aa="${k}" data-v="${v}" aria-pressed="${prefs[k]===v}">${esc(label)}</button>`;
+    p.setAttribute("dir", lang==="ar"?"rtl":"ltr"); p.setAttribute("lang", lang);
+    p.innerHTML = `<span class="grab" aria-hidden="true"></span><div class="hd"><h2 id="aaTitle">${esc(tx.comfort)}</h2><button type="button" class="icon ghost" id="aaClose" aria-label="${esc(t().close)}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+      <fieldset><legend>${esc(tx.size)}</legend><div class="opts">${["s","m","l","xl"].map(v=>opt("size",v,tx.sizes[v])).join("")}</div></fieldset>
+      <fieldset><legend>${esc(tx.spacing)}</legend><div class="opts">${opt("spacing","compact",tx.compact)}${opt("spacing","relaxed",tx.relaxed)}</div></fieldset>
+      <fieldset><legend>${esc(tx.look)}</legend><div class="opts">${opt("look","light",tx.light)}${opt("look","night",tx.night)}${opt("look","auto",tx.auto)}</div><p class="note">${esc(tx.autoNote)}</p></fieldset>
+      <fieldset><legend>${esc(tx.motion)}</legend><div class="opts">${opt("motion","on",tx.on)}${opt("motion","off",tx.off)}</div><p class="note">${esc(tx.motionNote)}</p></fieldset>
+      <p class="note">${esc(tx.saved)}</p>`;
+  }
+  function aaOpen(on){
+    const p=$("#aaPanel"), s=$("#aaScrim"), b=$("#aaBtn"); if(!p) return;
+    p.hidden=!on; s.hidden=!on; b.setAttribute("aria-expanded", String(!!on));
+    if (on){ aaRender(); const f=p.querySelector('[aria-pressed="true"]'); if(f) f.focus(); } else b.focus();
+  }
+  document.addEventListener("click", e=>{
+    if (e.target.closest("#aaBtn")){ aaOpen($("#aaPanel").hidden); return; }
+    if (e.target.closest("#aaClose") || e.target.closest("#aaScrim")){ aaOpen(false); return; }
+    const o=e.target.closest("[data-aa]"); if (o){ prefs[o.dataset.aa]=o.dataset.v; savePrefs(); aaRender(); const n=$(`[data-aa="${o.dataset.aa}"][data-v="${o.dataset.v}"]`); if(n) n.focus(); if (o.dataset.aa==="motion") render(); return; }
+    const pk=e.target.closest("[data-pick]"); if (pk){ e.preventDefault(); pick(Number(pk.dataset.pick), true); return; }
+    const tb=e.target.closest("[data-tabgo]"); if (tb){ tabGo(tb.dataset.tabgo); return; }
+  });
+  document.addEventListener("keydown", e=>{ if (e.key==="Escape" && $("#aaPanel") && !$("#aaPanel").hidden) aaOpen(false); });
+
+  /* bottom tabs */
+  let tabNow="today";
+  function tabbarRender(){
+    const bar=$("#tabbar"); if(!bar) return; const tx=RT(); const ids=["today","prices","wallet","stories"];
+    const ic={today:`<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="2.5"/><circle cx="12" cy="12" r="6.5"/><circle cx="12" cy="12" r="10" opacity="0.5"/></svg>`,
+      prices:`<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l5-5 4 4 8-8"/><path d="M15 8h5v5"/></svg>`,
+      wallet:`<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M16 12.5h2"/><path d="M3 9h14a2 2 0 0 0 2-2V6"/></svg>`,
+      stories:`<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h14v16l-7-4-7 4z"/></svg>`};
+    bar.setAttribute("dir", lang==="ar"?"rtl":"ltr"); bar.setAttribute("lang", lang);
+    bar.innerHTML = ids.map((k,i)=>`<button type="button" data-tabgo="${k}" aria-current="${tabNow===k}">${ic[k]}<span>${esc(tx.tabs[i])}</span></button>`).join("");
+  }
+  function tabGo(k){
+    tabNow=k; const beh = motionOK() ? "smooth" : "auto";
+    if (k==="today") window.scrollTo({top:0, behavior:beh});
+    else if (k==="wallet"){ if (typeof econTab!=="undefined" && econTab!=="wallet"){ econTab="wallet"; try{ localStorage.setItem("rb-etab","wallet"); }catch(e){} render(); } const el=$("#secWallet"); if(el) el.scrollIntoView({behavior:beh, block:"start"}); }
+    else { const el=$(k==="prices"?"#secDay":"#secEvents"); if(el) el.scrollIntoView({behavior:beh, block:"start"}); }
+    tabbarRender();
+  }
+  function rdAfter(){ artsWire(); tabbarRender(); aaRender(); const ab=$("#aaBtn"); if(ab){ ab.setAttribute("aria-label", RT().aa); ab.title=RT().aa; } }
+
 
   let briefs=[], current=null, status=null, series={}, db=null, mcp=null, selEvent=null, indTab="risk";
   try{ const s=localStorage.getItem("rb-tab2"); if(s) indTab=s; }catch(e){}
@@ -821,7 +1219,7 @@ const ALERT_AT = 75;
     const s=S===null?0:50*S, m=M===null?0:25*M, h=H===null?0:25*H;
     return {score:Math.round(s+m+h), s, m, h, missM:M===null, missH:H===null, missS:S===null, c};
   }
-  const STOPS=[[0,[47,111,214]],[25,[42,163,184]],[50,[217,164,0]],[75,[232,104,26]],[100,[208,38,29]]];
+  const STOPS=[[0,[127,168,176]],[49,[95,169,181]],[50,[242,165,65]],[74,[224,132,40]],[75,[226,87,76]],[100,[190,40,30]]];
   function scoreColor(v){
     v=Math.max(0,Math.min(100,v));
     for (let i=1;i<STOPS.length;i++){ if (v<=STOPS[i][0]){ const [a,ca]=STOPS[i-1],[b,cb]=STOPS[i],f=(v-a)/(b-a); const c=ca.map((x,j)=>Math.round(x+(cb[j]-x)*f)); return `rgb(${c.join(",")})`; } }
@@ -1856,7 +2254,7 @@ const ALERT_AT = 75;
     $("#confirm").textContent=t().confirm; $("#cancel").textContent=t().cancel;
     $("#gear").setAttribute("aria-label",t().menu); $("#mClose").setAttribute("aria-label",t().close);
     $("#miAccount").textContent=t().account; $("#miSettings").textContent=t().settings; $("#miAbout").textContent=t().about;
-    applyPrefs();
+    applyPrefs(); tabbarRender();
     if (!$("#modal").hidden && openWin && winLang!==lang) fillWin(openWin);
     updateRefreshUI();
     $("#dateline").textContent=t().dateline;
@@ -1952,16 +2350,18 @@ const ALERT_AT = 75;
       ${alert}
       ${palerts}
       <nav class="days" aria-label="Briefings">${days}</nav>
+      ${offlineHtml(raw)}${heroHtml(b, raw, pol)}
       <section class="today">
         <div class="bottomline">${blTop(tx, TU)}<p class="gl">${esc(b.headline)}</p><span class="meta">${esc(tx.researched)} ${esc(raw.generatedAt||b.generatedAt||b.date)}${raw.runType==="light"?` · ${esc(tx.lightNote)}`:""}</span>
           <span class="eyebrow" style="margin-top:6px">${esc(tx.changed)}</span><div class="changes">${changeChips}</div>
           <button type="button" class="sharebtn" id="shareBtn">${SHAREICON}<span>${esc(TU.shareBtn)}</span></button></div>
       </section>
-      <section class="sec"><div class="sec-h"><h2>${esc(tx.indicators)}</h2><span class="aside">${esc(tx.trendsAside)}</span></div>${ind}</section>
+      ${pricesHtml(raw)}${artsHtml(b, raw, pol)}
+      <section class="sec" id="secPrices"><div class="sec-h"><h2>${esc(tx.indicators)}</h2><span class="aside">${esc(tx.trendsAside)}</span></div>${ind}</section>
       ${(fc||sc||trk)?`<section class="sec"><div class="sec-h"><h2>${esc(tx.outlook)}</h2><span class="aside">${esc(o.horizon||"")}</span></div>
         <div class="outlook"><div class="panel"><h3>${esc(tx.official)}</h3><ul class="fc">${fc||`<li><span class="note">${esc(tx.none)}</span></li>`}</ul></div>
         <div class="panel"><h3>${esc(tx.scenarios)}<span class="est">${esc(tx.estimate)}</span></h3><div class="scen">${sc||`<p class="note">${esc(tx.none)}</p>`}</div>${o.scenarioNote?`<p class="note gl">${esc(o.scenarioNote)}</p>`:""}</div>${trk}</div></section>`:""}
-      <section class="sec">
+      <section class="sec" id="secEvents">
         <div class="sec-h"><h2>${esc(tx.events)}</h2><span class="aside">${esc(tx.eventsAside)}</span></div>
         <div class="events">
           <div class="mapcol"><div class="mapbox" id="map">${drawMap(pol.map(p=>({lat:Number(p.lat),lon:Number(p.lon),score:p._s,i:p._i,title:p.title})))}</div>
@@ -1969,7 +2369,7 @@ const ALERT_AT = 75;
           <div class="evlist"><details class="help"><summary>${esc(tx.helpT)}</summary>${tx.helpP.map(x=>`<p>${esc(x)}</p>`).join("")}</details>${pol.map(p=>eventCard(p, raw)).join("")||`<p class="note">${esc(tx.nothing)}</p>`}</div>
         </div>
       </section>
-      ${withUI(()=>econBox(raw))}
+      <div id="secWallet">${withUI(()=>econBox(raw))}</div>
       <div class="chain">
         <section class="sec lane"><div class="sec-h"><h2>${esc(tx.eco)}</h2></div>${(b.global||[]).map(plainCard).join("")||`<p class="note">${esc(tx.nothing)}</p>`}</section>
         <section class="sec lane"><div class="sec-h"><h2>${esc(tx.leb)}</h2></div>${(b.lebanon||[]).map(plainCard).join("")||`<p class="note">${esc(tx.nothing)}</p>`}${showExp?`<h3 class="lane-sub">🌍 ${esc(tx.expatsH)}</h3>${b.expats.map(plainCard).join("")}`:""}</section>
@@ -1981,7 +2381,7 @@ const ALERT_AT = 75;
 `;
     applyGlossary($("#main"));
     } finally { uiOverride=null; }
-    updateWalletCalcs();
+    updateWalletCalcs(); rdAfter();
     if (actId){ const n=document.getElementById(actId); if (n && n!==document.activeElement){ try{ n.focus({preventScroll:true}); }catch(e){ n.focus(); } } }
   }
 
